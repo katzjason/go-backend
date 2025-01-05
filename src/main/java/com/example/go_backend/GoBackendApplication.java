@@ -10,8 +10,4 @@ public class GoBackendApplication {
 		SpringApplication.run(GoBackendApplication.class, args);
 	}
 
-	public int Add(int a, int b){
-		return a + b;
-	}
-
 }
