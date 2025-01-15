@@ -146,15 +146,26 @@ public class BoardTest {
       Stone blackStone = new Stone("Black", 1, 1);
       goban.addStone(blackStone);
       goban.addStone(new Stone("White", 1, 0));
-      goban.addStone(new Stone("White", 2, 1));
       goban.addStone(new Stone("White", 1, 2));
       goban.addStone(new Stone("White", 0, 1));
+      goban.addStone(new Stone("White", 2, 1));
       assertEquals(blackStone, goban.getStone(1, 1));
       goban.capturePrisoners();
-     // assertNull(goban.getStone(1,1));
-      //assertEquals(null, goban.getStone(9,9));
+      assertNull(goban.getStone(1,1));
+      goban.removeStone(2, 1);
+      assertNull(goban.getStone(2, 1));
+      goban.addStone(new Stone("White", 2, 0));
+      goban.addStone(new Stone("White", 2, 2));
+      Stone blackStone2 = new Stone("Black", 1, 1);
+      goban.addStone(blackStone2);
+      goban.capturePrisoners();
+      assertEquals(blackStone2, goban.getStone(1, 1));
+      Stone blackStone3 = new Stone("Black", 2, 1);
+      goban.addStone(blackStone3);
+      assertEquals(blackStone3, goban.getStone(2, 1));
+      goban.addStone(new Stone("White", 3, 1));
+      goban.capturePrisoners();
+      assertNull(goban.getStone(1, 1));
+      assertNull(goban.getStone(2, 1));
     }
-
   }
-
-
