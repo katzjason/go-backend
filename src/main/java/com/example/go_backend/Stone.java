@@ -6,14 +6,16 @@ public class Stone {
   private int y;
   private int liberties;
   private Boolean isPrisoner;
+  private int turn;
 
   // Parameterized constructor
-  public Stone(String color, int x, int y) {
+  public Stone(String color, int x, int y, int turn) {
     this.color = color;
     this.x = x;
     this.y = y;
     this.isPrisoner = false;
     this.liberties = 4;
+    this.turn = turn;
   }
 
   public String toString() {
@@ -21,7 +23,8 @@ public class Stone {
         "; X: " + String.valueOf(this.x) +
         "; Y: " + String.valueOf(this.y) +
         "; Liberties: " + String.valueOf(this.liberties)) + 
-        "; isPrisoner: " + String.valueOf(this.isPrisoner);
+        "; isPrisoner: " + String.valueOf(this.isPrisoner) + 
+        "; Turn placed: " + String.valueOf(this.turn);
   }
 
   public char getColor() {
@@ -42,5 +45,9 @@ public class Stone {
 
   public void setLiberties(int liberties) {
     this.liberties = liberties;
+  }
+
+  public int getTurn() {
+    return this.turn;
   }
 }

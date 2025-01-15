@@ -14,6 +14,7 @@ public class Game {
       Board goban = new Board(9, 9);
       Boolean continuePlaying = true;
       Boolean blacksTurn = true;
+      int turn = 1;
       // Continue Playing
       while (continuePlaying) {
         Boolean added = false;
@@ -27,11 +28,13 @@ public class Game {
             Integer x = Integer.valueOf(input);
             System.out.println("Enter Y: ");
             Integer y = Integer.valueOf(scanner.nextLine());
-            added = goban.addStone(new Stone((blacksTurn ? "Black" : "White"), x, y)); // true if stone was added
+            added = goban.addStone(new Stone((blacksTurn ? "Black" : "White"), x, y, turn)); // true if stone was added
           }
           
         }
         blacksTurn = !blacksTurn;
+        turn++;
+        goban.capturePrisoners();
         goban.display();
 
         System.out.println("Click space to continue");
