@@ -49,6 +49,16 @@ public class Board {
     return this.board[y][x];
   }
 
+  public void removeStone(int x, int y){
+    if (x < 0 || y < 0 || x >= this.cols || y >= this.rows) {
+      throw new IllegalArgumentException(
+          "X and Y must be non-negative and within the size of the board.");
+    } else if (this.getStone(x, y) == null){
+      System.out.printf("No stone to remove at: (%d,%d)%n", x, y);
+    } else {
+      this.board[y][x] = null;
+    }
+  }
 
   public int calculateLiberties(int x, int y, char color, Set<Tuple> visited) {
     // returns the liberties for a stone at (x, y)
@@ -58,11 +68,9 @@ public class Board {
     }
 
     Tuple coordinates = new Tuple(x, y);
-    if (visited.contains(coordinates)) {
-      return 10;
-    } else {
+    if (!visited.contains(coordinates)) {
       visited.add(coordinates);
-    }
+      }
 
     int liberties = 0;
     List<Tuple> surrounding = new ArrayList<>();
@@ -92,7 +100,7 @@ public class Board {
     return liberties;
   }
 
-  
+
   public void display() {
     System.out.println("BOARD");
     System.out.println("  0 1 2 3 4 5 6 7 8");
@@ -105,21 +113,64 @@ public class Board {
     }
   }
 
-  // private Set<Tuple> floodFill(int x, int y){
-  // }
+  // returns a set of tuples containing the chain forming this group
+  public Set<Tuple> floodFill(int x, int y, char color, Set<Tuple> visited){
+    Tuple coordinates = new Tuple(x, y);
+    Set<Tuple> group = new HashSet<>();
+    if (!visited.contains(coordinates)) {
+      visited.add(coordinates);
+      if (getStone(x,y).getColor() == color){
+        group.add(coordinates);
+      } else {
+        return group;
+      }
+    }
+    
+    List<Tuple> surrounding = new ArrayList<>();
+    surrounding.add(new Tuple(x + 1, y));
+    surrounding.add(new Tuple(x - 1, y));
+    surrounding.add(new Tuple(x, y + 1));
+    surrounding.add(new Tuple(x, y - 1));
 
-  // public HashMap<String, Integer> calculateTerritories() {
-  // HashMap<String, Integer> territories = new HashMap<>();
-  // Set<Tuple> visited = new HashSet<>();
+    Iterator<Tuple> iterator = surrounding.iterator();
+    while (iterator.hasNext()) {
+      Tuple neighbor = iterator.next();
+      try { // try-catch is used for coordinates that fall outside the size of the board
+        if (visited.contains(neighbor))
+          continue;
+        else if (this.board[neighbor.second][neighbor.first] == null) {
+          visited.add(neighbor);
+        } else if (this.board[neighbor.second][neighbor.first].getColor() != color) {
+          visited.add(neighbor);
+        } else {
+          group.addAll(floodFill(neighbor.first, neighbor.second, color, visited));
+        }
+      } catch (Exception e) {
+        continue;
+      }
+    }
+    return group;
+  }
 
-  // for (int i = 0; i < this.rows; i++) {
-  // for (int j = 0; j < this.cols; j++) {
-  // Tuple coordinates = new Tuple(i, j);
-  // if (!visited.contains(coordinates)) {
-  // // calculate
-  // }
-  // }
-  // }
-  // return territories;
-  // }
+  // removes captured prisoners from board
+  public void capturePrisoners(){
+    Set<Tuple> visited = new HashSet<>();
+    for (int i = 0; i < this.rows; i++){
+      for (int j = 0; j < this.cols; j++){
+        Tuple coordinate = new Tuple(i, j);
+        if (!visited.contains(coordinate)){
+          visited.add(coordinate);
+          Stone thisStone = this.getStone(i, j);
+          if (thisStone != null){
+            Set<Tuple> group = floodFill(i, j, thisStone.getColor(), new HashSet<Tuple>()); // get group
+            if(this.calculateLiberties(i, j, this.getStone(i, j).getColor(), new HashSet<Tuple>()) == 0){  // get liberties
+              for(Tuple stone : group){ // remove stones
+                removeStone(stone.first, stone.second);
+              }        
+            }          
+          }
+        }
+      }
+    } 
+  }
 }

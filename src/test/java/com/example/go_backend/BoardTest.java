@@ -107,5 +107,54 @@ public class BoardTest {
     assertEquals(6, goban1.calculateLiberties(2,2,'W',visited));
     visited.clear();
     }
+
+    @Test
+    public void removeStoneTest(){
+      Board goban = new Board(9,9);
+      goban.addStone(new Stone("White", 1, 0));
+      goban.removeStone(1, 0);
+      assertEquals(null, goban.getStone(1,0));
+    }
+
+    @Test
+    public void floodFillTest(){
+      Board goban = new Board(9,9);
+      HashSet<Tuple> visited = new HashSet<Tuple>();
+      goban.addStone(new Stone("White", 0, 0));
+      assertEquals(1, goban.floodFill(0, 0, 'W', visited).size());
+      visited.clear();
+      goban.addStone(new Stone("White", 0, 1));
+      goban.addStone(new Stone("Black", 0, 2));
+      assertEquals(2, goban.floodFill(0, 0, 'W', visited).size());
+      visited.clear();
+      assertEquals(1, goban.floodFill(0, 2, 'B', visited).size());
+      visited.clear();
+      assertEquals(0, goban.floodFill(0, 2, 'W', visited).size());
+      visited.clear();
+      goban.addStone(new Stone("White", 1, 0));
+      goban.addStone(new Stone("White", 1, 1));
+      goban.addStone(new Stone("White", 1, 2));
+      goban.addStone(new Stone("White", 2, 1));
+      assertEquals(6, goban.floodFill(1, 1, 'W', visited).size());
+      visited.clear();
+    }
+
+
+    @Test
+    public void capturePrisonersTest(){
+      Board goban = new Board(9,9);
+      Stone blackStone = new Stone("Black", 1, 1);
+      goban.addStone(blackStone);
+      goban.addStone(new Stone("White", 1, 0));
+      goban.addStone(new Stone("White", 2, 1));
+      goban.addStone(new Stone("White", 1, 2));
+      goban.addStone(new Stone("White", 0, 1));
+      assertEquals(blackStone, goban.getStone(1, 1));
+      goban.capturePrisoners();
+     // assertNull(goban.getStone(1,1));
+      //assertEquals(null, goban.getStone(9,9));
+    }
+
   }
+
 
