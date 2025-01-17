@@ -43,6 +43,7 @@ public class Board {
     // Legal move to place stone
     if (liberties != 0) {
       this.board[y][x] = stone;
+      setKo(new Tuple(this.cols + 1, this.rows + 1), '\u0000');
       return true;
     }
 
@@ -61,6 +62,7 @@ public class Board {
       try {
         char neighborColor = stone.getColor() == 'B' ? 'W' : 'B';
         if (calculateLiberties(neighbor.first, neighbor.second, neighborColor, new HashSet<Tuple>()) == 0) {
+          this.setKo(neighbor, neighborColor);
           return true;
         }
       } catch (Exception e) {
@@ -196,6 +198,14 @@ public class Board {
   // TODO: use turn# to decide combating liberties
   // removes captured prisoners from board
   public void capturePrisoners() {
+    // removing ko piece
+    if (getKo().first < this.cols &&
+        getKo().first >= 0 &&
+        getKo().second < this.rows &&
+        getKo().second >= 0) {
+      removeStone(getKo().first, getKo().second);
+    }
+
     Set<Tuple> visited = new HashSet<>();
     for (int i = 0; i < this.rows; i++) {
       for (int j = 0; j < this.cols; j++) {

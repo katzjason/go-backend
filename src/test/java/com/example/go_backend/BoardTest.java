@@ -35,7 +35,8 @@ public class BoardTest {
     Board goban2 = new Board(9, 9);
     HashSet<Tuple> visited = new HashSet<Tuple>();
     goban2.addStone(new Stone("White", 2, 0, 2));
-    goban2.addStone(new Stone("White", 1, 1, 4));
+    Stone toBeCaptured = new Stone("White", 1, 1, 4);
+    goban2.addStone(toBeCaptured);
     goban2.addStone(new Stone("White", 2, 2, 6));
     goban2.addStone(new Stone("White", 3, 1, 8));
     assertEquals(4, goban2.calculateLiberties(1, 1, 'W', visited), "wrong");
@@ -45,13 +46,15 @@ public class BoardTest {
     goban2.addStone(new Stone("Black", 2, 1, 5));
     assertEquals(goban2.getStone(2, 1), null, "Illegal stone was placed on board.");
     goban2.addStone(new Stone("Black", 1, 2, 7));
-    assertEquals(1, goban2.calculateLiberties(1, 1, 'W', visited), "wrong");
+    assertEquals(1, goban2.calculateLiberties(1, 1, 'W', visited), "Wrong number of liberties.");
     visited.clear();
     Stone newCaptureStone = new Stone("Black", 2, 1, 9);
     goban2.addStone(newCaptureStone);
     assertEquals(newCaptureStone, goban2.getStone(2, 1), "Stone was not placed on board.");
-    // goban2.capturePrisoners();
-    // assertEquals(null, goban.getStone(1, 1), "Captured stone was not removed.");
+    assertEquals(toBeCaptured, goban2.getStone(1, 1), "Captured stone removed prematurely.");
+    goban2.capturePrisoners();
+    assertEquals(null, goban2.getStone(1, 1), "Captured stone was not removed.");
+    assertEquals(newCaptureStone, goban2.getStone(2, 1), "Legal stone was removed.");
 
   }
 
