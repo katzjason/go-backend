@@ -7,8 +7,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 public class StoneTest {
 
-  Stone whiteStone = new Stone("White", 0,0);
-  Stone blackStone = new Stone("Black", 1,1);
+  Stone whiteStone = new Stone("White", 0,0,1);
+  Stone blackStone = new Stone("Black", 1,1,2);
 
   @Test
   public void getColorTest(){

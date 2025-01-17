@@ -5,7 +5,6 @@ public class Stone {
   private int x;
   private int y;
   private int liberties;
-  private Boolean isPrisoner;
   private int turn;
 
   // Parameterized constructor
@@ -13,7 +12,6 @@ public class Stone {
     this.color = color;
     this.x = x;
     this.y = y;
-    this.isPrisoner = false;
     this.liberties = 4;
     this.turn = turn;
   }
@@ -23,7 +21,6 @@ public class Stone {
         "; X: " + String.valueOf(this.x) +
         "; Y: " + String.valueOf(this.y) +
         "; Liberties: " + String.valueOf(this.liberties)) + 
-        "; isPrisoner: " + String.valueOf(this.isPrisoner) + 
         "; Turn placed: " + String.valueOf(this.turn);
   }
 
