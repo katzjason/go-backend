@@ -2,6 +2,7 @@ package com.example.go_backend;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -40,14 +41,13 @@ public class Board {
     }
 
     int liberties = calculateLiberties(x, y, stone.getColor(), new HashSet<Tuple>());
+    this.board[y][x] = stone; // temporarily adding stone
+
     // Legal move to place stone
     if (liberties != 0) {
-      this.board[y][x] = stone;
       setKo(new Tuple(this.cols + 1, this.rows + 1), '\u0000');
       return true;
     }
-
-    this.board[y][x] = stone; // temporarily adding stone
 
     // Liberties are zero but capture is made
     List<Tuple> surrounding = new ArrayList<>();
@@ -144,6 +144,22 @@ public class Board {
     return liberties;
   }
 
+  public HashMap<String, Integer> calculateTerritories(boolean areaCounting) {
+    // areaCounting flags whether to use territory counting or area counting
+    HashMap<String, Integer> territoriesMap = new HashMap<>(); // { "Black": ..., "White": ... }
+
+    // fill in details
+
+    return territoriesMap;
+  }
+
+
+  // QUESTIONS
+  // How do we calculate territories without removing dead stones?
+  // How do we remove dead stones without first calculating territories?
+  // If you find a group of stones that form a territory, how do you know which direction it extends? Until it hits side?
+
+
   public void display() {
     System.out.println("BOARD");
     System.out.println("  0 1 2 3 4 5 6 7 8");
@@ -195,7 +211,6 @@ public class Board {
     return group;
   }
 
-  // TODO: use turn# to decide combating liberties
   // removes captured prisoners from board
   public void capturePrisoners() {
     // removing ko piece
