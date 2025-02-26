@@ -66,7 +66,7 @@ public class Game {
           break;
         }
 
-        System.out.println("Click space to continue");
+        System.out.println("Click space to continue.");
         continuePlaying = scanner.nextLine().equals(" ") ? true : false;
       }
     }
