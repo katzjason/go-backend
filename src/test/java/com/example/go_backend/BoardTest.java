@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.ArrayList;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -192,4 +193,65 @@ public class BoardTest {
     assertNull(goban.getStone(1, 1));
     assertNull(goban.getStone(2, 1));
   }
+
+  @Test
+  public void calculateTerritoriesTest(){
+    Board goban = new Board(4,4);
+    HashMap<String, Integer> scores = new HashMap<>();
+    scores = goban.calculateTerritories(true);
+    assertEquals(0, scores.get("Black"));
+    assertEquals(0, scores.get("White"));
+    goban.addStone(new Stone("Black", 1, 0, 1));
+    goban.addStone(new Stone("Black", 1, 1, 3));
+    goban.addStone(new Stone("Black", 0, 1, 5));
+    goban.addStone(new Stone("White", 3, 2, 2));
+    goban.addStone(new Stone("White", 2, 2, 4));
+    goban.addStone(new Stone("White", 2, 3, 6));
+    scores = goban.calculateTerritories(true);
+    assertEquals(4, scores.get("Black"));
+    assertEquals(4, scores.get("White"));
+    scores = goban.calculateTerritories(false);
+    assertEquals(1, scores.get("Black"));
+    assertEquals(1, scores.get("White"));
+    goban.addStone(new Stone("Black", 0, 0, 7));
+    goban.addStone(new Stone("White", 3, 3, 8));
+    scores = goban.calculateTerritories(true);
+    assertEquals(4, scores.get("Black"));
+    assertEquals(4, scores.get("White"));
+    scores = goban.calculateTerritories(false);
+    assertEquals(0, scores.get("Black"));
+    assertEquals(0, scores.get("White"));
+    goban.addStone(new Stone("Black", 2, 1, 9));
+    goban.addStone(new Stone("White", 1, 2, 10));
+    goban.addStone(new Stone("Black", 3, 1, 11));
+    scores = goban.calculateTerritories(true);
+    assertEquals(8, scores.get("Black"));
+    assertEquals(5, scores.get("White")); // checks revisitng colored stones
+    scores = goban.calculateTerritories(false);
+    assertEquals(2, scores.get("Black"));
+    assertEquals(0, scores.get("White"));
+
+    goban = new Board(4,4);
+    goban.addStone(new Stone("Black", 2, 0, 1));
+    goban.addStone(new Stone("Black", 2, 1, 3));
+    goban.addStone(new Stone("Black", 1, 1, 5));
+    goban.addStone(new Stone("Black", 0, 1, 7));
+    goban.addStone(new Stone("White", 3, 3, 2));
+    scores = goban.calculateTerritories(true);
+    assertEquals(6, scores.get("Black"));
+    assertEquals(1, scores.get("White"));
+    scores = goban.calculateTerritories(false);
+    assertEquals(2, scores.get("Black"));
+    assertEquals(0, scores.get("White"));
+    goban.addStone(new Stone("White", 1, 0, 4));
+    scores = goban.calculateTerritories(true);
+    assertEquals(4, scores.get("Black"));
+    assertEquals(2, scores.get("White"));
+    scores = goban.calculateTerritories(false);
+    assertEquals(0, scores.get("Black"));
+    assertEquals(0, scores.get("White"));
+
+  }
 }
+
+

@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.Queue;
+import java.util.LinkedList;
 
 public class Board {
   private final int rows;
@@ -144,21 +146,113 @@ public class Board {
     return liberties;
   }
 
+
+
   public HashMap<String, Integer> calculateTerritories(boolean areaCounting) {
     // areaCounting flags whether to use territory counting or area counting
     HashMap<String, Integer> territoriesMap = new HashMap<>(); // { "Black": ..., "White": ... }
+    int blackTerritory = 0; int whiteTerritory = 0;
+    int blackStones = 0; int whiteStones = 0;
 
-    // fill in details
 
-    return territoriesMap;
+    Set<Tuple> coords = new HashSet<>(); // board coordinates we must visit
+    for(int row = 0; row < this.rows; row++){
+      for(int col=0; col < this.cols; col++){
+        coords.add(new Tuple(row, col));
+      }
+    }
+
+    Set<Tuple> visited = new HashSet<>();
+    while(coords.size() > 0){
+      Tuple thisCoord = null;
+      for(Tuple coord : coords){ // pop coordinate from set
+        thisCoord = coord;
+        break;
+      }
+
+      if(thisCoord == null){
+        break;
+      }
+
+      visited.add(thisCoord); // moving coord from new to visited
+      coords.remove(thisCoord);
+      int x = thisCoord.first; int y = thisCoord.second;
+
+      if (getStone(x,y) == null) { // empty space
+        char borderColor = '\u0000';
+        boolean neutral = false;
+        int territorySize = 1;
+        Queue<Tuple> toVisit = new LinkedList<>();
+        toVisit.add(new Tuple(x+1, y));
+        toVisit.add(new Tuple(x-1, y));
+        toVisit.add(new Tuple(x, y+1));
+        toVisit.add(new Tuple(x, y-1));
+
+        while(toVisit.size() > 0){
+          thisCoord = toVisit.poll();
+          x = thisCoord.first; y = thisCoord.second;
+          if (x < 0 || x > this.cols - 1 || y < 0 || y > this.rows - 1){
+            continue;
+          }
+
+          Stone thisStone = getStone(x,y);
+
+          if(visited.contains(thisCoord)){
+            if(thisStone != null && thisStone.getColor() != borderColor){
+              neutral = true;
+            }
+            continue;
+          }
+        
+          visited.add(thisCoord);
+          coords.remove(thisCoord);
+
+          if(thisStone == null){
+            territorySize += 1;
+            toVisit.add(new Tuple(x+1, y));
+            toVisit.add(new Tuple(x-1, y));
+            toVisit.add(new Tuple(x, y+1));
+            toVisit.add(new Tuple(x, y-1));
+          } else {
+              char thisColor = thisStone.getColor();
+              if (borderColor == '\u0000'){
+                borderColor = thisColor;
+              } else if (thisStone.getColor() != borderColor){
+                neutral = true;
+              }
+
+              if(thisColor == 'B'){
+                blackStones += 1;
+              } else{
+                whiteStones += 1;
+              }  
+          }
+        }
+
+        if(!neutral){
+          if(borderColor == 'W'){
+            whiteTerritory += territorySize;
+          } else if (borderColor == 'B'){
+            blackTerritory += territorySize;
+          }
+        }
+      } else if(getStone(x, y).getColor() == 'B'){
+        blackStones += 1;
+      } else if(getStone(x, y).getColor() == 'W'){
+        whiteStones += 1;
+      } 
+    }
+      
+    if (areaCounting){
+      territoriesMap.put("Black", blackTerritory + blackStones);
+      territoriesMap.put("White", whiteTerritory + whiteStones);
+    } else{
+      territoriesMap.put("Black", blackTerritory);
+      territoriesMap.put("White", whiteTerritory);
+    }
+      return territoriesMap;
   }
-
-
-  // QUESTIONS
-  // How do we calculate territories without removing dead stones?
-  // How do we remove dead stones without first calculating territories?
-  // If you find a group of stones that form a territory, how do you know which direction it extends? Until it hits side?
-
+  
 
   public void display() {
     System.out.println("BOARD");
