@@ -157,8 +157,8 @@ public class Board {
 
     Set<Tuple> coords = new HashSet<>(); // board coordinates we must visit
     for(int row = 0; row < this.rows; row++){
-      for(int col=0; col < this.cols; col++){
-        coords.add(new Tuple(row, col));
+      for(int col = 0; col < this.cols; col++){
+        coords.add(new Tuple(col, row));
       }
     }
 
@@ -170,9 +170,9 @@ public class Board {
         break;
       }
 
-      if(thisCoord == null){
-        break;
-      }
+      // if(thisCoord == null){
+      //   break;
+      // }
 
       visited.add(thisCoord); // moving coord from new to visited
       coords.remove(thisCoord);
@@ -198,8 +198,12 @@ public class Board {
           Stone thisStone = getStone(x,y);
 
           if(visited.contains(thisCoord)){
-            if(thisStone != null && thisStone.getColor() != borderColor){
-              neutral = true;
+            if (thisStone != null){
+              if (borderColor == '\u0000'){
+                borderColor = thisStone.getColor();
+              } else if (thisStone.getColor() != borderColor){
+                neutral = true;
+              }
             }
             continue;
           }
@@ -306,7 +310,7 @@ public class Board {
   }
 
   // removes captured prisoners from board
-  public void capturePrisoners() {
+  public void capturePrisoners(Player player) {
     // removing ko piece
     if (getKo().first < this.cols &&
         getKo().first >= 0 &&
@@ -324,10 +328,10 @@ public class Board {
           Stone thisStone = this.getStone(i, j);
           if (thisStone != null) {
             Set<Tuple> group = floodFill(i, j, thisStone.getColor(), new HashSet<Tuple>()); // get group
-            if (this.calculateLiberties(i, j, this.getStone(i, j).getColor(), new HashSet<Tuple>()) == 0) { // get
-                                                                                                            // liberties
+            if (this.calculateLiberties(i, j, this.getStone(i, j).getColor(), new HashSet<Tuple>()) == 0) { // get liberties
               for (Tuple stone : group) { // remove stones
                 removeStone(stone.first, stone.second);
+                player.setCapturedPrisoners(player.getCapturedPrisoners() + 1);
               }
             }
           }

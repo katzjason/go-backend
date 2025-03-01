@@ -14,6 +14,8 @@ public class BoardTest {
 
   @Test
   public void addStoneTest() {
+    Player black = new Player('B');
+    Player white = new Player('W');
     Board goban = new Board(9, 9);
     assertEquals(goban.getStone(0, 0), null, "Board was not empty after initialization.");
     assertEquals(goban.getStone(1, 1), null, "Board was not empty after initialization.");
@@ -53,7 +55,7 @@ public class BoardTest {
     goban2.addStone(newCaptureStone);
     assertEquals(newCaptureStone, goban2.getStone(2, 1), "Stone was not placed on board.");
     assertEquals(toBeCaptured, goban2.getStone(1, 1), "Captured stone removed prematurely.");
-    goban2.capturePrisoners();
+    goban2.capturePrisoners(white);
     assertEquals(null, goban2.getStone(1, 1), "Captured stone was not removed.");
     assertEquals(newCaptureStone, goban2.getStone(2, 1), "Legal stone was removed.");
 
@@ -167,6 +169,8 @@ public class BoardTest {
 
   @Test
   public void capturePrisonersTest() {
+    Player black = new Player('B');
+    Player white = new Player('W');
     Board goban = new Board(9, 9);
     Stone blackStone = new Stone("Black", 1, 1, 1);
     goban.addStone(blackStone);
@@ -175,7 +179,7 @@ public class BoardTest {
     goban.addStone(new Stone("White", 0, 1, 6));
     goban.addStone(new Stone("White", 2, 1, 8));
     assertEquals(blackStone, goban.getStone(1, 1));
-    goban.capturePrisoners();
+    goban.capturePrisoners(white);
     assertNull(goban.getStone(1, 1));
     goban.removeStone(2, 1);
     assertNull(goban.getStone(2, 1));
@@ -183,15 +187,31 @@ public class BoardTest {
     goban.addStone(new Stone("White", 2, 2, 12));
     Stone blackStone2 = new Stone("Black", 1, 1, 13);
     goban.addStone(blackStone2);
-    goban.capturePrisoners();
+    goban.capturePrisoners(black);
     assertEquals(blackStone2, goban.getStone(1, 1));
     Stone blackStone3 = new Stone("Black", 2, 1, 15);
     goban.addStone(blackStone3);
     assertEquals(blackStone3, goban.getStone(2, 1));
     goban.addStone(new Stone("White", 3, 1, 16));
-    goban.capturePrisoners();
+    goban.capturePrisoners(white);
     assertNull(goban.getStone(1, 1));
     assertNull(goban.getStone(2, 1));
+  }
+
+  public Board initializeBoard(char[][] board){ // pass in cases where turn # doesn't matter
+    Board goban = new Board(board.length, board[0].length);
+    int turn = 1;
+    for(int row = 0; row < board.length; row++){
+      for(int col=0; col < board[0].length; col++){
+        if(board[row][col] == 'B'){
+          goban.addStone(new Stone("Black", col, row, turn));
+        } else if (board[row][col] == 'W'){
+          goban.addStone(new Stone("White", col, row, turn));
+        }
+        turn += 1;
+      }
+    }
+    return goban;
   }
 
   @Test
@@ -251,7 +271,33 @@ public class BoardTest {
     assertEquals(0, scores.get("Black"));
     assertEquals(0, scores.get("White"));
 
+    char[][] new_board = {
+      {'_','B','_','_','_','_','_','_','_'},
+      {'_','B','_','_','_','_','_','_','_'},
+      {'B','_','B','_','_','_','_','_','_'},
+      {'_','B','_','_','_','_','_','_','_'},
+      {'_','_','_','_','_','_','_','_','_'},
+      {'_','_','_','_','_','_','_','_','_'},
+      {'_','_','_','_','_','_','_','_','_'},
+      {'W','W','_','_','_','_','_','_','_'},
+      {'_','W','_','_','_','_','_','_','_'},
+    };
+
+    goban = initializeBoard(new_board);
+    scores = goban.calculateTerritories(true);
+    assertEquals(8, scores.get("Black"));
+    assertEquals(4, scores.get("White"));
+    
+    scores = goban.calculateTerritories(false);
+    assertEquals(3, scores.get("Black"));
+    assertEquals(1, scores.get("White"));
   }
+
+
+  
+
+
+
 }
 
 

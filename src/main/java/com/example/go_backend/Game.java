@@ -6,9 +6,11 @@ import java.util.HashMap;
 public class Game {
 
   public static void main(String args[]) {
+    Player black = new Player('B');
+    Player white = new Player('W');
     System.out.println("Welcome to 9x9 Go.");
     Scanner scanner = new Scanner(System.in);
-    System.out.println("Enter 'A' to use area scoring, or any ofther key to use territory scoring");
+    System.out.println("Enter 'A' to use area scoring, or any other key to use territory scoring");
     String scoringSelection = scanner.nextLine();
     boolean areaScoring;
     if (scoringSelection.equals("A")){
@@ -46,22 +48,27 @@ public class Game {
           }
 
         }
+
+        if(blacksTurn){
+          goban.capturePrisoners(black);
+        } else {
+          goban.capturePrisoners(white);
+        }
+        
         blacksTurn = !blacksTurn;
         turn++;
-        goban.capturePrisoners();
         goban.display();
 
-        if (consecutivePasses >= 2 && !blacksTurn) { // white passed last
+        if (consecutivePasses >= 2 && !blacksTurn) { // white needs to pass last
           // 1. Calculate Territories & Remove Dead Stones
-          HashMap<String, Integer> territoriesMap = goban.calculateTerritories(false);
-          int blackScore = territoriesMap.get("Black");
-          int whiteScore = territoriesMap.get("White");
-          // 2. Form Scores
-          if (!areaScoring) {
-            // need to subtract prisoners
-          }
-          // 3. End Game
-          System.out.printf("Black's score: %d, White's score: %d", blackScore, whiteScore);
+          HashMap<String, Integer> territoriesMap = goban.calculateTerritories(areaScoring);
+          int blackScore = territoriesMap.get("Black") + black.getCapturedPrisoners();
+          int whiteScore = territoriesMap.get("White") + white.getCapturedPrisoners();
+          // 2. End Game
+          System.out.printf("Black's prisoners: %d, White's prisoners: % d", black.getCapturedPrisoners(), white.getCapturedPrisoners());
+          System.out.print("\n");
+          System.out.printf("Black's score: %d, White's score: % d", blackScore, whiteScore);
+          System.out.print("\n");
           System.out.println(blackScore > whiteScore ? "Black wins!" : "White wins!");
           break;
         }
