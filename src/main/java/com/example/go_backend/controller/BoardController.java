@@ -8,11 +8,12 @@ public class BoardController {
   
   @GetMapping
   public int[][] getBoard() {
-    int[][] board = new int[2][2];
-    board[0][0] = 0;
-    board[0][1] = 1;
+    int[][] board = new int[3][3];
+    board[1][1] = -1;
+    board[2][1] = 1;
     board[1][0] = 0;
-    board[1][1] = 1;
+    board[0][1] = 1;
+    board[1][2] = 0;
     return board;
     
 
