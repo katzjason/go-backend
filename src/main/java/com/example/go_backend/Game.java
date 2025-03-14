@@ -1,5 +1,6 @@
 package com.example.go_backend;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Scanner;
 import java.util.HashMap;
 
@@ -22,9 +23,27 @@ public class Game {
     }
     System.out.println("Enter 'Start' to Start Game");
     String start = scanner.nextLine();
+
+    
+    String jsonPayload = "";
     if (start.equals("Start")) {
       // Start Game
       Board goban = new Board(9, 9);
+      
+      try{
+        GameState state = new GameState(goban.getBoard(), 1, "","", "", 0);
+        ObjectMapper objectMapper = new ObjectMapper();
+        jsonPayload = objectMapper.writeValueAsString(state);
+        System.out.println("Json payload:");
+        System.out.println(jsonPayload);
+        String response = JavaClient.sendPostRequest(jsonPayload);
+        System.out.println("Move: ");
+        System.out.println(response);
+        //System.out.println(jsonPayload1);
+      } catch (Exception e){
+        System.out.println("EXCEPTION");
+      }
+      
       Boolean continuePlaying = true;
       Boolean blacksTurn = true;
       int turn = 1;

@@ -30,6 +30,24 @@ public class Board {
     }
   }
 
+  public int[][] getBoard(){
+    int[][] intBoard = new int[this.rows][this.cols];
+    for(int row = 0; row < this.rows; row++){
+      for(int col = 0; col < this.cols; col++){
+        int res;
+        if(this.board[row][col] == null){
+          res = 0;
+        } else if(this.board[row][col].getColor() == 'B'){
+          res = 1;
+        } else {
+          res = -1;
+        }
+        intBoard[row][col] = res;
+      }
+    }
+    return intBoard;
+  }
+
   public boolean addStone(Stone stone) {
     int x = stone.getX(), y = stone.getY();
 

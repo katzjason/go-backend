@@ -1,22 +1,34 @@
 package com.example.go_backend.controller;
 
+import com.example.go_backend.service.BoardService;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import java.util.HashMap;
 
 @RestController
 @RequestMapping("/api/board")
 public class BoardController {
+
+  private final BoardService boardService;
+
+  @Autowired
+  public BoardController(BoardService boardService){
+    this.boardService = boardService;
+  }
+  
   
   @GetMapping
   public int[][] getBoard() {
-    int[][] board = new int[3][3];
-    board[1][1] = -1;
-    board[2][1] = 1;
-    board[1][0] = 0;
-    board[0][1] = 1;
-    board[1][2] = 0;
-    return board;
-    
-
+    return boardService.getBoardState();
   }
+
+  @PostMapping("/move")
+  public HashMap<String, Object> makeMove(@RequestBody String move){
+    boolean isLegal = true;
+    HashMap<String, Object> response = new HashMap<>();
+    return response;
+  }
+
+
   
 }
