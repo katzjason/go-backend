@@ -30,14 +30,14 @@ public class Board {
     }
   }
 
-  public int[][] getBoard(){
+  public int[][] getBoard() {
     int[][] intBoard = new int[this.rows][this.cols];
-    for(int row = 0; row < this.rows; row++){
-      for(int col = 0; col < this.cols; col++){
+    for (int row = 0; row < this.rows; row++) {
+      for (int col = 0; col < this.cols; col++) {
         int res;
-        if(this.board[row][col] == null){
+        if (this.board[row][col] == null) {
           res = 0;
-        } else if(this.board[row][col].getColor() == 'B'){
+        } else if (this.board[row][col].getColor() == 'B') {
           res = 1;
         } else {
           res = -1;
@@ -46,6 +46,21 @@ public class Board {
       }
     }
     return intBoard;
+  }
+
+  public void setBoard(int[][] newBoard, int[][] turns) {
+    if (newBoard.length != this.rows || newBoard[0].length != this.cols) {
+      throw new IllegalArgumentException(
+          "Mismatch board sizes; Cannot set board.");
+    }
+    for (int row = 0; row < this.rows; row++) {
+      for (int col = 0; col < this.cols; col++) {
+        if (newBoard[row][col] != 0) {
+          String stoneColor = newBoard[row][col] == 1 ? "B" : "W";
+          this.board[row][col] = new Stone(stoneColor, col, row, turns[row][col]);
+        }
+      }
+    }
   }
 
   public boolean addStone(Stone stone) {
@@ -164,117 +179,117 @@ public class Board {
     return liberties;
   }
 
-
-
   public HashMap<String, Integer> calculateTerritories(boolean areaCounting) {
     // areaCounting flags whether to use territory counting or area counting
     HashMap<String, Integer> territoriesMap = new HashMap<>(); // { "Black": ..., "White": ... }
-    int blackTerritory = 0; int whiteTerritory = 0;
-    int blackStones = 0; int whiteStones = 0;
-
+    int blackTerritory = 0;
+    int whiteTerritory = 0;
+    int blackStones = 0;
+    int whiteStones = 0;
 
     Set<Tuple> coords = new HashSet<>(); // board coordinates we must visit
-    for(int row = 0; row < this.rows; row++){
-      for(int col = 0; col < this.cols; col++){
+    for (int row = 0; row < this.rows; row++) {
+      for (int col = 0; col < this.cols; col++) {
         coords.add(new Tuple(col, row));
       }
     }
 
     Set<Tuple> visited = new HashSet<>();
-    while(coords.size() > 0){
+    while (coords.size() > 0) {
       Tuple thisCoord = null;
-      for(Tuple coord : coords){ // pop coordinate from set
+      for (Tuple coord : coords) { // pop coordinate from set
         thisCoord = coord;
         break;
       }
 
       // if(thisCoord == null){
-      //   break;
+      // break;
       // }
 
       visited.add(thisCoord); // moving coord from new to visited
       coords.remove(thisCoord);
-      int x = thisCoord.first; int y = thisCoord.second;
+      int x = thisCoord.first;
+      int y = thisCoord.second;
 
-      if (getStone(x,y) == null) { // empty space
+      if (getStone(x, y) == null) { // empty space
         char borderColor = '\u0000';
         boolean neutral = false;
         int territorySize = 1;
         Queue<Tuple> toVisit = new LinkedList<>();
-        toVisit.add(new Tuple(x+1, y));
-        toVisit.add(new Tuple(x-1, y));
-        toVisit.add(new Tuple(x, y+1));
-        toVisit.add(new Tuple(x, y-1));
+        toVisit.add(new Tuple(x + 1, y));
+        toVisit.add(new Tuple(x - 1, y));
+        toVisit.add(new Tuple(x, y + 1));
+        toVisit.add(new Tuple(x, y - 1));
 
-        while(toVisit.size() > 0){
+        while (toVisit.size() > 0) {
           thisCoord = toVisit.poll();
-          x = thisCoord.first; y = thisCoord.second;
-          if (x < 0 || x > this.cols - 1 || y < 0 || y > this.rows - 1){
+          x = thisCoord.first;
+          y = thisCoord.second;
+          if (x < 0 || x > this.cols - 1 || y < 0 || y > this.rows - 1) {
             continue;
           }
 
-          Stone thisStone = getStone(x,y);
+          Stone thisStone = getStone(x, y);
 
-          if(visited.contains(thisCoord)){
-            if (thisStone != null){
-              if (borderColor == '\u0000'){
+          if (visited.contains(thisCoord)) {
+            if (thisStone != null) {
+              if (borderColor == '\u0000') {
                 borderColor = thisStone.getColor();
-              } else if (thisStone.getColor() != borderColor){
+              } else if (thisStone.getColor() != borderColor) {
                 neutral = true;
               }
             }
             continue;
           }
-        
+
           visited.add(thisCoord);
           coords.remove(thisCoord);
 
-          if(thisStone == null){
+          if (thisStone == null) {
             territorySize += 1;
-            toVisit.add(new Tuple(x+1, y));
-            toVisit.add(new Tuple(x-1, y));
-            toVisit.add(new Tuple(x, y+1));
-            toVisit.add(new Tuple(x, y-1));
+            toVisit.add(new Tuple(x + 1, y));
+            toVisit.add(new Tuple(x - 1, y));
+            toVisit.add(new Tuple(x, y + 1));
+            toVisit.add(new Tuple(x, y - 1));
           } else {
-              char thisColor = thisStone.getColor();
-              if (borderColor == '\u0000'){
-                borderColor = thisColor;
-              } else if (thisStone.getColor() != borderColor){
-                neutral = true;
-              }
+            char thisColor = thisStone.getColor();
+            if (borderColor == '\u0000') {
+              borderColor = thisColor;
+            } else if (thisStone.getColor() != borderColor) {
+              neutral = true;
+            }
 
-              if(thisColor == 'B'){
-                blackStones += 1;
-              } else{
-                whiteStones += 1;
-              }  
+            if (thisColor == 'B') {
+              blackStones += 1;
+            } else {
+              whiteStones += 1;
+            }
           }
         }
 
-        if(!neutral){
-          if(borderColor == 'W'){
+        if (!neutral) {
+          if (borderColor == 'W') {
             whiteTerritory += territorySize;
-          } else if (borderColor == 'B'){
+          } else if (borderColor == 'B') {
             blackTerritory += territorySize;
           }
         }
-      } else if(getStone(x, y).getColor() == 'B'){
+      } else if (getStone(x, y).getColor() == 'B') {
         blackStones += 1;
-      } else if(getStone(x, y).getColor() == 'W'){
+      } else if (getStone(x, y).getColor() == 'W') {
         whiteStones += 1;
-      } 
+      }
     }
-      
-    if (areaCounting){
+
+    if (areaCounting) {
       territoriesMap.put("Black", blackTerritory + blackStones);
       territoriesMap.put("White", whiteTerritory + whiteStones);
-    } else{
+    } else {
       territoriesMap.put("Black", blackTerritory);
       territoriesMap.put("White", whiteTerritory);
     }
-      return territoriesMap;
+    return territoriesMap;
   }
-  
 
   public void display() {
     System.out.println("BOARD");
@@ -346,7 +361,8 @@ public class Board {
           Stone thisStone = this.getStone(i, j);
           if (thisStone != null) {
             Set<Tuple> group = floodFill(i, j, thisStone.getColor(), new HashSet<Tuple>()); // get group
-            if (this.calculateLiberties(i, j, this.getStone(i, j).getColor(), new HashSet<Tuple>()) == 0) { // get liberties
+            if (this.calculateLiberties(i, j, this.getStone(i, j).getColor(), new HashSet<Tuple>()) == 0) { // get
+                                                                                                            // liberties
               for (Tuple stone : group) { // remove stones
                 removeStone(stone.first, stone.second);
                 player.setCapturedPrisoners(player.getCapturedPrisoners() + 1);
