@@ -198,14 +198,14 @@ public class BoardTest {
     assertNull(goban.getStone(2, 1));
   }
 
-  public Board initializeBoard(char[][] board){ // pass in cases where turn # doesn't matter
+  public Board initializeBoard(char[][] board) { // pass in cases where turn # doesn't matter
     Board goban = new Board(board.length, board[0].length);
     int turn = 1;
-    for(int row = 0; row < board.length; row++){
-      for(int col=0; col < board[0].length; col++){
-        if(board[row][col] == 'B'){
+    for (int row = 0; row < board.length; row++) {
+      for (int col = 0; col < board[0].length; col++) {
+        if (board[row][col] == 'B') {
           goban.addStone(new Stone("Black", col, row, turn));
-        } else if (board[row][col] == 'W'){
+        } else if (board[row][col] == 'W') {
           goban.addStone(new Stone("White", col, row, turn));
         }
         turn += 1;
@@ -215,8 +215,8 @@ public class BoardTest {
   }
 
   @Test
-  public void calculateTerritoriesTest(){
-    Board goban = new Board(4,4);
+  public void calculateTerritoriesTest() {
+    Board goban = new Board(4, 4);
     HashMap<String, Integer> scores = new HashMap<>();
     scores = goban.calculateTerritories(true);
     assertEquals(0, scores.get("Black"));
@@ -251,7 +251,7 @@ public class BoardTest {
     assertEquals(2, scores.get("Black"));
     assertEquals(0, scores.get("White"));
 
-    goban = new Board(4,4);
+    goban = new Board(4, 4);
     goban.addStone(new Stone("Black", 2, 0, 1));
     goban.addStone(new Stone("Black", 2, 1, 3));
     goban.addStone(new Stone("Black", 1, 1, 5));
@@ -272,32 +272,25 @@ public class BoardTest {
     assertEquals(0, scores.get("White"));
 
     char[][] new_board = {
-      {'_','B','_','_','_','_','_','_','_'},
-      {'_','B','_','_','_','_','_','_','_'},
-      {'B','_','B','_','_','_','_','_','_'},
-      {'_','B','_','_','_','_','_','_','_'},
-      {'_','_','_','_','_','_','_','_','_'},
-      {'_','_','_','_','_','_','_','_','_'},
-      {'_','_','_','_','_','_','_','_','_'},
-      {'W','W','_','_','_','_','_','_','_'},
-      {'_','W','_','_','_','_','_','_','_'},
+        { '_', 'B', '_', '_', '_', '_', '_', '_', '_' },
+        { '_', 'B', '_', '_', '_', '_', '_', '_', '_' },
+        { 'B', '_', 'B', '_', '_', '_', '_', '_', '_' },
+        { '_', 'B', '_', '_', '_', '_', '_', '_', '_' },
+        { '_', '_', '_', '_', '_', '_', '_', '_', '_' },
+        { '_', '_', '_', '_', '_', '_', '_', '_', '_' },
+        { '_', '_', '_', '_', '_', '_', '_', '_', '_' },
+        { 'W', 'W', '_', '_', '_', '_', '_', '_', '_' },
+        { '_', 'W', '_', '_', '_', '_', '_', '_', '_' },
     };
 
     goban = initializeBoard(new_board);
     scores = goban.calculateTerritories(true);
     assertEquals(8, scores.get("Black"));
     assertEquals(4, scores.get("White"));
-    
+
     scores = goban.calculateTerritories(false);
     assertEquals(3, scores.get("Black"));
     assertEquals(1, scores.get("White"));
   }
 
-
-  
-
-
-
 }
-
-

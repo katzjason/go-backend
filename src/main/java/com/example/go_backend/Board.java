@@ -15,6 +15,7 @@ public class Board {
   private Stone[][] board;
   private Tuple ko;
   private char koColor;
+  private int[][] turns;
 
   public Board(int rows, int cols) {
     this.rows = rows;
@@ -22,6 +23,7 @@ public class Board {
     this.board = new Stone[rows][cols];
     this.ko = new Tuple(rows + 1, cols + 1);
     this.koColor = '\u0000';
+    this.turns = new int[rows][cols];
 
     for (int i = 0; i < this.rows; i++) {
       for (int j = 0; j < this.cols; j++) {
@@ -51,7 +53,7 @@ public class Board {
   public void setBoard(int[][] newBoard, int[][] turns) {
     if (newBoard.length != this.rows || newBoard[0].length != this.cols) {
       throw new IllegalArgumentException(
-          "Mismatch board sizes; Cannot set board.");
+          "Mismatched board sizes; Cannot set board.");
     }
     for (int row = 0; row < this.rows; row++) {
       for (int col = 0; col < this.cols; col++) {
@@ -59,6 +61,22 @@ public class Board {
           String stoneColor = newBoard[row][col] == 1 ? "B" : "W";
           this.board[row][col] = new Stone(stoneColor, col, row, turns[row][col]);
         }
+      }
+    }
+  }
+
+  public int[][] getTurns() {
+    return this.turns;
+  }
+
+  public void setTurns(int[][] new_turns) {
+    if (new_turns.length != this.rows || new_turns[0].length != this.cols) {
+      throw new IllegalArgumentException(
+          "Mismatched board sizes; Cannot set turns.");
+    }
+    for (int row = 0; row < this.rows; row++) {
+      for (int col = 0; col < this.cols; col++) {
+        this.turns[row][col] = new_turns[row][col];
       }
     }
   }
@@ -350,6 +368,8 @@ public class Board {
         getKo().second < this.rows &&
         getKo().second >= 0) {
       removeStone(getKo().first, getKo().second);
+      player.setCapturedPrisoners(player.getCapturedPrisoners() + 1);
+      this.turns[getKo().second][getKo().first] = 0;
     }
 
     Set<Tuple> visited = new HashSet<>();
@@ -364,6 +384,7 @@ public class Board {
             if (this.calculateLiberties(i, j, this.getStone(i, j).getColor(), new HashSet<Tuple>()) == 0) { // get
                                                                                                             // liberties
               for (Tuple stone : group) { // remove stones
+                this.turns[stone.second][stone.first] = 0;
                 removeStone(stone.first, stone.second);
                 player.setCapturedPrisoners(player.getCapturedPrisoners() + 1);
               }
