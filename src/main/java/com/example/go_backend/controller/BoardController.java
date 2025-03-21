@@ -50,6 +50,7 @@ public class BoardController {
     Integer ko_x = -1;
     Integer ko_y = -1;
     Integer ko_player_restriction = 0;
+    Boolean area_scoring = false;
 
     try {
       ObjectMapper requestMapper = new ObjectMapper();
@@ -77,6 +78,7 @@ public class BoardController {
       ko_player_restriction = Integer.parseInt(jsonMap.get("ko_player_restriction").toString());
       last_black_move = jsonMap.get("last_black_move").toString();
       last_white_move = jsonMap.get("last_white_move").toString();
+      area_scoring = Boolean.parseBoolean(jsonMap.get("area_scoring").toString());
 
     } catch (JsonProcessingException e) {
       System.err.println(e.getMessage());
@@ -121,7 +123,7 @@ public class BoardController {
     int new_blacks_score = 0;
     int new_whites_score = 0;
     if (game_over) {
-      HashMap<String, Integer> territoriesMap = goban.calculateTerritories(false);
+      HashMap<String, Integer> territoriesMap = goban.calculateTerritories(area_scoring);
       new_blacks_score = territoriesMap.get("Black") + black.getCapturedPrisoners();
       new_whites_score = territoriesMap.get("White") + white.getCapturedPrisoners();
     }
