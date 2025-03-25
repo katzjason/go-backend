@@ -16,22 +16,23 @@ import java.util.Map;
 import java.util.Arrays;
 
 @RestController
-@RequestMapping("/api/board")
+@CrossOrigin(origins = "https://go-frontend-mauve.vercel.app", allowedHeaders = "*")
+// @RequestMapping("/api/board")
 public class BoardController {
 
-  private final BoardService boardService;
+  // private final BoardService boardService;
 
-  @Autowired
-  public BoardController(BoardService boardService) {
-    this.boardService = boardService;
-  }
+  // @Autowired
+  // public BoardController(BoardService boardService) {
+  // this.boardService = boardService;
+  // }
 
-  @GetMapping
-  public int[][] getBoard() {
-    return boardService.getBoardState();
-  }
+  // @GetMapping
+  // public int[][] getBoard() {
+  // return boardService.getBoardState();
+  // }
 
-  @PostMapping("/move")
+  @PostMapping("/api/board/move")
   public HashMap<String, Object> makeMove(@RequestBody String request) {
     boolean processingError = false;
     int[][] board = new int[9][9];
@@ -57,9 +58,8 @@ public class BoardController {
       Map<String, Object> jsonMap = requestMapper.readValue(request, new TypeReference<Map<String, Object>>() {
       });
       Object moveObject = jsonMap.get("move");
-      Map<String, Integer> moveMap = requestMapper.convertValue(moveObject,
-          new TypeReference<Map<String, Integer>>() {
-          });
+      Map<String, Integer> moveMap = requestMapper.convertValue(moveObject, new TypeReference<Map<String, Integer>>() {
+      });
       move_row = moveMap.get("row");
       move_col = moveMap.get("col");
       passed = moveMap.get("passed");
@@ -101,7 +101,11 @@ public class BoardController {
         String stoneColor = move_player.equals(1) ? "Black" : "White";
         boolean added = goban.addStone(new Stone(stoneColor, move_col, move_row, this_turn));
         if (added == true) {
-          turns = goban.getTurns(); // reflects pieces that were removed
+          turns = goban.getTurns(); // reflects
+                                    // pieces
+                                    // that
+                                    // were
+                                    // removed
           turns[move_row][move_col] = this_turn; // adds this move
           if (move_player == 1) {
             goban.capturePrisoners(black);
