@@ -12,10 +12,11 @@ public class WebConfig {
   public WebMvcConfigurer corsConfigurer() {
     return new WebMvcConfigurer() {
       @Override
+
       public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/api/**")
-            .allowedOrigins("https://go-frontend-mauve.vercel.app/") // Replace with your actual frontend URL
-            .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+        registry.addMapping("/**")
+            .allowedOrigins("https://go-frontend-mauve.vercel.app")
+            .allowedMethods("GET", "POST", "PUT", "DELETE")
             .allowedHeaders("*")
             .allowCredentials(true);
       }
