@@ -1,7 +1,13 @@
-package com.example.go_backend;
+package com.example.go_backend.terminalGame;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Scanner;
+import com.example.go_backend.Player;
+import com.example.go_backend.Board;
+import com.example.go_backend.GameState;
+import com.example.go_backend.Stone;
+import com.example.go_backend.Tuple;
+import com.example.go_backend.JavaClient;
 import java.util.HashMap;
 
 public class Game {
@@ -14,7 +20,7 @@ public class Game {
     System.out.println("Enter 'A' to use area scoring, or any other key to use territory scoring");
     String scoringSelection = scanner.nextLine();
     boolean areaScoring;
-    if (scoringSelection.equals("A")){
+    if (scoringSelection.equals("A")) {
       System.out.println("Area Scoring Selected");
       areaScoring = true;
     } else {
@@ -24,14 +30,13 @@ public class Game {
     System.out.println("Enter 'Start' to Start Game");
     String start = scanner.nextLine();
 
-    
     String jsonPayload = "";
     if (start.equals("Start")) {
       // Start Game
       Board goban = new Board(9, 9);
-      
-      try{
-        GameState state = new GameState(goban.getBoard(), 1, "","", "", 0);
+
+      try {
+        GameState state = new GameState(goban.getBoard(), 1, "", "", "", 0);
         ObjectMapper objectMapper = new ObjectMapper();
         jsonPayload = objectMapper.writeValueAsString(state);
         System.out.println("Json payload:");
@@ -39,11 +44,11 @@ public class Game {
         String response = JavaClient.sendPostRequest(jsonPayload);
         System.out.println("Move: ");
         System.out.println(response);
-        //System.out.println(jsonPayload1);
-      } catch (Exception e){
+        // System.out.println(jsonPayload1);
+      } catch (Exception e) {
         System.out.println("EXCEPTION");
       }
-      
+
       Boolean continuePlaying = true;
       Boolean blacksTurn = true;
       int turn = 1;
@@ -68,12 +73,12 @@ public class Game {
 
         }
 
-        if(blacksTurn){
+        if (blacksTurn) {
           goban.capturePrisoners(black);
         } else {
           goban.capturePrisoners(white);
         }
-        
+
         blacksTurn = !blacksTurn;
         turn++;
         goban.display();
@@ -84,7 +89,8 @@ public class Game {
           int blackScore = territoriesMap.get("Black") + black.getCapturedPrisoners();
           int whiteScore = territoriesMap.get("White") + white.getCapturedPrisoners();
           // 2. End Game
-          System.out.printf("Black's prisoners: %d, White's prisoners: % d", black.getCapturedPrisoners(), white.getCapturedPrisoners());
+          System.out.printf("Black's prisoners: %d, White's prisoners: % d", black.getCapturedPrisoners(),
+              white.getCapturedPrisoners());
           System.out.print("\n");
           System.out.printf("Black's score: %d, White's score: % d", blackScore, whiteScore);
           System.out.print("\n");

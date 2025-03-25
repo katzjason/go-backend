@@ -8,6 +8,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import java.util.HashMap;
 
 import static org.junit.jupiter.api.Assertions.*;
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 
 @SpringBootTest
 public class BoardTest {
@@ -17,11 +19,18 @@ public class BoardTest {
     Player black = new Player('B');
     Player white = new Player('W');
     Board goban = new Board(9, 9);
+
     assertEquals(goban.getStone(0, 0), null, "Board was not empty after initialization.");
     assertEquals(goban.getStone(1, 1), null, "Board was not empty after initialization.");
     Stone whiteStone = new Stone("White", 0, 0, 1);
-    goban.addStone(whiteStone);
+    boolean goodAdd = goban.addStone(whiteStone);
     assertEquals(goban.getStone(0, 0), whiteStone, "Stone was not placed on board.");
+    Tuple newKo = new Tuple(10, 10);
+    assertEquals(10, newKo.first);
+    assertEquals(10, newKo.second);
+    assertEquals(true, goodAdd);
+    boolean badAdd = goban.addStone(new Stone("White", 0, 0, 1));
+    assertEquals(badAdd, false);
     Stone blackStone = new Stone("Black", 1, 1, 2);
     goban.addStone(blackStone);
     assertEquals(goban.getStone(1, 1), blackStone, "Stone was not placed on board.");
@@ -58,7 +67,9 @@ public class BoardTest {
     goban2.capturePrisoners(white);
     assertEquals(null, goban2.getStone(1, 1), "Captured stone was not removed.");
     assertEquals(newCaptureStone, goban2.getStone(2, 1), "Legal stone was removed.");
-
+    goban2.setKo(new Tuple(1, 1), 'W');
+    badAdd = goban2.addStone(new Stone("White", 1, 1, 1));
+    assertEquals(badAdd, false);
   }
 
   @Test
@@ -196,6 +207,32 @@ public class BoardTest {
     goban.capturePrisoners(white);
     assertNull(goban.getStone(1, 1));
     assertNull(goban.getStone(2, 1));
+    Board goban1 = new Board(9, 9);
+    Player black2 = new Player('B');
+    goban1.addStone(new Stone("Black", 8, 6, 1));
+    goban1.addStone(new Stone("White", 8, 7, 2));
+    goban1.addStone(new Stone("Black", 7, 6, 3));
+    goban1.addStone(new Stone("White", 7, 7, 4));
+    goban1.addStone(new Stone("Black", 6, 6, 5));
+    goban1.addStone(new Stone("White", 6, 7, 6));
+    goban1.addStone(new Stone("Black", 5, 6, 7));
+    goban1.addStone(new Stone("White", 6, 8, 8));
+    goban1.addStone(new Stone("Black", 5, 7, 9));
+    goban1.addStone(new Stone("White", 0, 0, 10));
+    goban1.addStone(new Stone("Black", 5, 8, 11));
+    assertNull(goban1.getStone(7, 8));
+    assertNull(goban1.getStone(8, 8));
+    goban1.addStone(new Stone("White", 7, 8, 12));
+    assertNull(goban1.getStone(8, 8));
+    Stone testBlack1 = new Stone("Black", 8, 8, 13);
+    goban1.addStone(testBlack1);
+    goban1.capturePrisoners(black2);
+    assertNull(goban1.getStone(7, 8));
+    assertEquals(testBlack1, goban1.getStone(8, 8));
+    assertNull(goban1.getStone(7, 7));
+    assertNull(goban1.getStone(6, 7));
+    assertNull(goban1.getStone(6, 8));
+    assertNull(goban1.getStone(8, 7));
   }
 
   public Board initializeBoard(char[][] board) { // pass in cases where turn # doesn't matter
@@ -291,6 +328,87 @@ public class BoardTest {
     scores = goban.calculateTerritories(false);
     assertEquals(3, scores.get("Black"));
     assertEquals(1, scores.get("White"));
+  }
+
+  @Test
+  public void getSetBoardTest() {
+    char[][] new_board = {
+        { '_', 'B', '_', '_', '_', '_', '_', '_', '_' },
+        { '_', '_', '_', '_', '_', '_', '_', '_', '_' },
+        { '_', '_', '_', '_', '_', '_', '_', '_', '_' },
+        { '_', '_', '_', '_', '_', '_', '_', '_', '_' },
+        { '_', '_', '_', '_', '_', '_', '_', '_', '_' },
+        { '_', '_', '_', '_', '_', '_', '_', '_', '_' },
+        { '_', '_', '_', '_', '_', '_', '_', '_', '_' },
+        { 'W', '_', '_', '_', '_', '_', '_', '_', '_' },
+        { '_', '_', '_', '_', '_', '_', '_', '_', '_' },
+    };
+    Board goban = initializeBoard(new_board);
+    int[][] board = goban.getBoard();
+    int[][] expect = new int[9][9];
+    int[][] turns = new int[9][9];
+    for (int row = 0; row < 9; row++) {
+      for (int col = 0; col < 9; col++) {
+        expect[row][col] = 0;
+        turns[row][col] = 0;
+      }
+    }
+
+    expect[0][1] = 1;
+    expect[7][0] = -1;
+    turns[0][1] = 1;
+    turns[7][0] = 2;
+    assertArrayEquals(expect, board);
+    expect[8][8] = 1;
+    turns[8][8] = 3;
+    goban.setBoard(expect, turns);
+    assertArrayEquals(expect, goban.getBoard());
+    try {
+      int[][] wrongSize = new int[1][1];
+      goban.setBoard(wrongSize, turns);
+    } catch (Exception e) {
+      assertEquals(e.getMessage(), "Mismatched board sizes; Cannot set board.");
+    }
+  }
+
+  @Test
+  public void getSetTurnsTest() {
+    Board goban = new Board(9, 9);
+    int[][] new_turns = new int[1][1];
+    try {
+      goban.setTurns(new_turns);
+    } catch (Exception e) {
+      assertEquals(e.getMessage(), "Mismatched board sizes; Cannot set turns.");
+    }
+    new_turns = new int[9][9];
+    new_turns[1][1] = 1;
+    goban.setTurns(new_turns);
+    assertArrayEquals(goban.getTurns(), new_turns);
+  }
+
+  @Test
+  public void getSetKo() {
+    Board goban = new Board(9, 9);
+    Tuple ko = goban.getKo();
+    assertEquals(10, ko.first);
+    assertEquals(10, ko.second);
+    assertEquals(goban.getKoColor(), '\u0000');
+    goban.setKo(new Tuple(1, 1), 'B');
+    Tuple ko1 = goban.getKo();
+    assertEquals(1, ko1.first);
+    assertEquals(1, ko1.second);
+    assertEquals(goban.getKoColor(), 'B');
+  }
+
+  @Test
+  public void displayTest() {
+    Board board = new Board(9, 9);
+    ByteArrayOutputStream outContent = new ByteArrayOutputStream();
+    System.setOut(new PrintStream(outContent));
+    board.display();
+    System.setOut(System.out);
+    assertEquals(215, outContent.toString().length());
+
   }
 
 }

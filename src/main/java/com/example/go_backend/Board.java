@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.Queue;
 import java.util.LinkedList;
+import java.util.Arrays;
 
 public class Board {
   private final int rows;
@@ -36,15 +37,7 @@ public class Board {
     int[][] intBoard = new int[this.rows][this.cols];
     for (int row = 0; row < this.rows; row++) {
       for (int col = 0; col < this.cols; col++) {
-        int res;
-        if (this.board[row][col] == null) {
-          res = 0;
-        } else if (this.board[row][col].getColor() == 'B') {
-          res = 1;
-        } else {
-          res = -1;
-        }
-        intBoard[row][col] = res;
+        intBoard[row][col] = this.board[row][col] == null ? 0 : (this.board[row][col].getColor() == 'B' ? 1 : -1);
       }
     }
     return intBoard;
@@ -81,54 +74,6 @@ public class Board {
     }
   }
 
-  public boolean addStone(Stone stone) {
-    int x = stone.getX(), y = stone.getY();
-
-    if (this.board[y][x] != null) { // physically can't place
-      System.out
-          .println("There is already a stone at (" + String.valueOf(x) + "," + String.valueOf(y) + "). Try again.");
-      return false;
-    } else if (x == this.ko.first && y == this.ko.second && stone.getColor() == this.koColor) { // ko rule
-      System.out.println("Cannot place stone here: Ko rule. Try again.");
-      return false;
-    }
-
-    int liberties = calculateLiberties(x, y, stone.getColor(), new HashSet<Tuple>());
-    this.board[y][x] = stone; // temporarily adding stone
-
-    // Legal move to place stone
-    if (liberties != 0) {
-      setKo(new Tuple(this.cols + 1, this.rows + 1), '\u0000');
-      return true;
-    }
-
-    // Liberties are zero but capture is made
-    List<Tuple> surrounding = new ArrayList<>();
-    surrounding.add(new Tuple(x + 1, y));
-    surrounding.add(new Tuple(x - 1, y));
-    surrounding.add(new Tuple(x, y + 1));
-    surrounding.add(new Tuple(x, y - 1));
-
-    Iterator<Tuple> iterator = surrounding.iterator();
-    while (iterator.hasNext()) {
-      Tuple neighbor = iterator.next();
-      try {
-        char neighborColor = stone.getColor() == 'B' ? 'W' : 'B';
-        if (calculateLiberties(neighbor.first, neighbor.second, neighborColor, new HashSet<Tuple>()) == 0) {
-          this.setKo(neighbor, neighborColor);
-          return true;
-        }
-      } catch (Exception e) {
-        continue;
-      }
-    }
-
-    // liberties are zero and no captures are made.
-    removeStone(x, y);
-    System.out.println("Cannot place stone here: immediate capture. Try again.");
-    return false;
-  }
-
   public Stone getStone(int x, int y) {
     return this.board[y][x];
   }
@@ -144,6 +89,65 @@ public class Board {
   public void setKo(Tuple ko, char color) {
     this.ko = ko;
     this.koColor = color;
+  }
+
+  public boolean addStone(Stone stone) {
+    int x = stone.getX(), y = stone.getY();
+
+    // Physically cannot place stone
+    if (this.board[y][x] != null) {
+      System.out
+          .println("There is already a stone at (" + String.valueOf(x) + "," + String.valueOf(y) + "). Try again.");
+      return false;
+    } else if (x == this.ko.first && y == this.ko.second && stone.getColor() == this.koColor) { // ko rule
+      System.out.println("Cannot place stone here: Ko rule. Try again.");
+      return false;
+    }
+
+    // Temporarily adding stone
+    this.board[y][x] = stone;
+    int liberties = calculateLiberties(x, y, stone.getColor(), new HashSet<Tuple>());
+
+    // Legal move to place stone?
+    if (liberties != 0) {
+      setKo(new Tuple(this.cols + 1, this.rows + 1), '\u0000');
+      return true;
+    }
+
+    // Liberties are zero but capture is made
+    List<Tuple> surrounding = new ArrayList<>();
+    surrounding
+        .addAll(Arrays.asList(new Tuple(x + 1, y), new Tuple(x - 1, y), new Tuple(x, y + 1), new Tuple(x, y - 1)));
+    HashSet<Tuple> visited = new HashSet<>();
+    char neighborColor = stone.getColor() == 'B' ? 'W' : 'B';
+    while (surrounding.size() > 0) {
+      Tuple coord = surrounding.remove(surrounding.size() - 1);
+      int x1 = coord.first;
+      int y1 = coord.second;
+      if (x1 >= this.cols || x1 < 0 || y1 >= this.rows || y1 < 0) {
+        continue;
+      } else if (visited.contains(coord)) {
+        continue;
+      } else {
+        visited.add(coord);
+      }
+
+      if (this.board[y1][x1] == null) {
+        continue;
+      } else if (this.board[y1][x1].getColor() == stone.getColor()) {
+        surrounding
+            .addAll(Arrays.asList(new Tuple(x1 + 1, y1), new Tuple(x1 - 1, y1), new Tuple(x1, y1 + 1),
+                new Tuple(x1, y1 - 1)));
+        continue;
+      } else if (calculateLiberties(x1, y1, neighborColor, new HashSet<Tuple>()) == 0) {
+        return true;
+      }
+    }
+
+    // liberties are zero and no captures are made.
+    removeStone(x, y);
+    System.out.println("Cannot place stone here: immediate capture. Try again.");
+    return false;
   }
 
   public void removeStone(int x, int y) {
@@ -162,6 +166,12 @@ public class Board {
     if (x < 0 || y < 0 || x >= this.cols || y >= this.rows) {
       throw new IllegalArgumentException(
           "X and Y must be non-negative and within the size of the board.");
+      // } else if (this.board[y][x] == null) {
+      // throw new IllegalArgumentException(
+      // "Null at X and Y; Cannot calculate liberties");
+    } else if (this.board[y][x] != null && this.board[y][x].getColor() != color) {
+      throw new IllegalArgumentException(
+          "Stone at X and Y doesn't match provided color for calculateLiberties.");
     }
 
     Tuple coordinates = new Tuple(x, y);
@@ -219,10 +229,6 @@ public class Board {
         thisCoord = coord;
         break;
       }
-
-      // if(thisCoord == null){
-      // break;
-      // }
 
       visited.add(thisCoord); // moving coord from new to visited
       coords.remove(thisCoord);
