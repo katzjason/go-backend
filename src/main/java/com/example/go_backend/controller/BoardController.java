@@ -36,7 +36,7 @@ public class BoardController {
   // }
   // @Value("${FLASK_URL}")
   // private String flask_url;
-  private String flask_url = "http://127.0.0.1:5000";
+  // private String flask_url = "http://127.0.0.1:5000";
 
   @PostMapping("/api/board/move")
   public HashMap<String, Object> makeMove(@RequestBody String request) {
@@ -235,7 +235,7 @@ public class BoardController {
       } catch (Exception e) {
         e.printStackTrace();
       }
-      String pythonApiUrl = "http://127.0.0.1:5000";
+      String pythonApiUrl = "https://go-algo-y530.onrender.com";
       aiMove = JavaClient.sendPostRequest(jsonPayload, pythonApiUrl);
       System.out.println(aiMove);
     } catch (Exception e) {
