@@ -17,14 +17,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.entity.ContentType;
 
 public class JavaClient {
-  private static final String url = "http://127.0.0.1:5000/predict";
+  // private static final String url = "http://127.0.0.1:5000/predict";
+  // private static final String url = "http://127.0.0.1:5000/predict";
 
-  public static String sendPostRequest(String jsonPayload) throws Exception {
+  public static String sendPostRequest(String jsonPayload, String url) throws Exception {
     try (CloseableHttpClient client = HttpClients.createDefault()) {
-      HttpPost post = new HttpPost(url);
+      HttpPost post = new HttpPost(url + "/predict");
+      // System.out.println(post);
       post.setHeader("Content-Type", "application/json");
       post.setEntity(new StringEntity(jsonPayload, StandardCharsets.UTF_8));
-
       try (CloseableHttpResponse response = client.execute(post);
           BufferedReader reader = new BufferedReader(new InputStreamReader(response.getEntity().getContent()))) {
 
@@ -35,6 +36,7 @@ public class JavaClient {
           responseString.append(line);
         }
 
+        // System.out.println(responseString);
         // Parse JSON response to extract 'move'
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode jsonResponse = objectMapper.readTree(responseString.toString());

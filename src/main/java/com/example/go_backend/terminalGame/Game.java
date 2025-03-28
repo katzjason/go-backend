@@ -41,7 +41,7 @@ public class Game {
         jsonPayload = objectMapper.writeValueAsString(state);
         System.out.println("Json payload:");
         System.out.println(jsonPayload);
-        String response = JavaClient.sendPostRequest(jsonPayload);
+        String response = JavaClient.sendPostRequest(jsonPayload, "FIX ME");
         System.out.println("Move: ");
         System.out.println(response);
         // System.out.println(jsonPayload1);
