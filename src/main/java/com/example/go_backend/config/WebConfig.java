@@ -15,7 +15,7 @@ public class WebConfig {
 
       public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-            .allowedOrigins("https://go-frontend-mauve.vercel.app")
+            .allowedOrigins("http://localhost:3000", "https://alpha-go-mini.vercel.app")
             .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
             .allowedHeaders("*")
             .allowCredentials(true);

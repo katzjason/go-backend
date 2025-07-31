@@ -11,15 +11,15 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 import org.springframework.web.bind.annotation.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+// import org.springframework.beans.factory.annotation.Autowired;
+// import org.springframework.beans.factory.annotation.Value;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Arrays;
+// import java.util.Arrays;
 
 @RestController
-@CrossOrigin(origins = "https://go-frontend-mauve.vercel.app", allowedHeaders = "*")
+//@CrossOrigin(origins = {"http://localhost:3000", "https://alpha-go-mini.vercel.app"}, allowedHeaders = "*")
 // @RequestMapping("/api/board")
 public class BoardController {
 
